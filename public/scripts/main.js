@@ -1,3 +1,13 @@
+let isLoading = false
+
+
+
+
+
+isLoading = true
+if(isLoading){
+    $('#message').html('Loading Events...')
+}
 $.ajax({
     type: "get",
     url: "/api/home",
@@ -8,7 +18,7 @@ $.ajax({
         }
 
 
-        $('#message').html(e)
+       
 
 
     }
