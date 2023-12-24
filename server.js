@@ -24,6 +24,9 @@ app.use('/api/login' , LoginRouter)
 const HomeRouter = require('./routes/api/home')
 app.use('/api/home' , auth, HomeRouter)
 
+/* public apis */
+const EventRouter = require('./routes/api/event')
+app.use('/api/event' , EventRouter)
 
 
 
