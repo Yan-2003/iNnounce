@@ -24,7 +24,7 @@ router.get('/' , auth, async (req ,res)=>{
 
 
 router.post('/getticket', auth, async (req, res)=>{
-    const ticket = await Event.GetTicket(req.session.user.user_id , req.body.id)
+    const ticket = await Event.GetTicket(req.session.user.user_id, req.session.user.email , req.body.id)
 
     console.log(ticket)
 

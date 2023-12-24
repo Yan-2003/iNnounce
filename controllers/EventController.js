@@ -1,4 +1,5 @@
 const db = require('../database/DB')
+const mailsender = require('nodemailer')
 
 class EventController{
 
@@ -34,7 +35,17 @@ class EventController{
         return false
     }
 
-    async GetTicket(user_id , event_id){
+
+    async GetTicket(user_id, user_email , event_id){
+
+        const transporter = mailsender.createTransport({
+            service: 'hotmail',
+            auth: {
+              user: process.env.MAIL,
+              pass: process.env.MAILPASS,
+            },
+          });
+
 
         const digits = 10;
         let randomNumber = '';
@@ -57,7 +68,7 @@ class EventController{
 
         console.log('totoal ticket ammount : ' + get_ammount.rows[0].ticket_quantity)
 
-        if((parseInt(get_ammount.rows[0].ticket_quantity) - 1) <= 0 ){
+        if(parseInt(get_ammount.rows[0].ticket_quantity) <= 0 ){
             return false
         }
 
@@ -68,6 +79,37 @@ class EventController{
         console.log(getTicket)
 
         if(getTicket.command === 'INSERT'){
+
+            const event =  `
+                SELECT e.event_id , e.title , e.description , TO_CHAR(e.event_date, 'Mon DD YYYY') AS event_date
+                FROM events e 
+                WHERE e.event_id = ${event_id}
+            `
+
+            const event_data = await db.query(event)
+            
+            const mailOptions = {
+                from: process.env.MAIL,
+                to: user_email,
+                subject: 'iNnounce Event Ticket',
+                html: `
+                    <h1>iNnounce Event Ticket</h1>
+                    <br>
+                    <p> This is your ticket no. : <b>${randomNumber}</b> for the event: </p>
+                    <br>
+                    <h2>${event_data.rows[0].title}"</h2>
+                    <p>Event Date: <b>${event_data.rows[0].event_date}</b></p>
+                    <br>
+                    <p>${event_data.rows[0].description}</p>
+                `,
+            };
+              
+              transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                  return console.error('Error:', error);
+                }
+                console.log('Email sent:', info.response);
+              });
             return true
         }else{
             return false
